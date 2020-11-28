@@ -3,6 +3,7 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 /**
  * Containing items and calculating price.
@@ -92,17 +93,10 @@ public class ShoppingCart {
         // formatting table
         // column max length
         int[] width = new int[]{0, 0, 0, 0, 0, 0};
-        for (String[] line : lines) {
-            for (int i = 0; i < line.length; i++) {
-                width[i] = Math.max(width[i], line[i].length());
-            }
-        }
-        for (int i = 0; i < header.length; i++) {
-            width[i] = Math.max(width[i], header[i].length());
-        }
-        for (int i = 0; i < footer.length; i++) {
-            width[i] = Math.max(width[i], footer[i].length());
-        }
+        for (String[] line : lines)
+            adjustColumnWidth(width, line);
+        adjustColumnWidth(width, header);
+        adjustColumnWidth(width, footer);
         // line length
         int lineLength = width.length - 1;
         for (int w : width) {
@@ -110,34 +104,36 @@ public class ShoppingCart {
         }
         StringBuilder sb = new StringBuilder();
         // header
-        for (int i = 0; i < header.length; i++) {
-            appendFormatted(sb, header[i], align[i], width[i]);
-        }
-        sb.append("\n");
-        // separator
-        for (int i = 0; i < lineLength; i++) {
-            sb.append("-");
-        }
-        sb.append("\n");
+        appendFormattedLine(sb, header, align, width, true);
+        appendSeparator(sb, lineLength);
         // lines
-        for (String[] line : lines) {
-            for (int i = 0; i < line.length; i++) {
-                appendFormatted(sb, line[i], align[i], width[i]);
-            }
-            sb.append("\n");
-        }
-        if (lines.size() > 0) {
-            // separator
-            for (int i = 0; i < lineLength; i++) {
-                sb.append("-");
-            }
-            sb.append("\n");
+        for (String[] ignored : lines) {
+            appendSeparator(sb, lineLength);
         }
         // footer
-        for (int i = 0; i < footer.length; i++) {
-            appendFormatted(sb, footer[i], align[i], width[i]);
-        }
+        appendFormattedLine(sb, footer, align, width, false);
         return sb.toString();
+    }
+
+    private void appendSeparator(StringBuilder sb, int lineLength) {
+        for (int i = 0; i < lineLength; i++) {
+            sb.append("\n");
+        }
+    }
+
+    private void adjustColumnWidth(int[] width, String[] columns) {
+        for (int i = 0; i < width.length; i++) {
+            width[i] = Math.max(width[i], columns[i].length());
+        }
+    }
+
+    private void appendFormattedLine(StringBuilder sb, String[] line, int[] align, int[] width, boolean newLine) {
+        for (int i = 0; i < line.length; i++) {
+            appendFormatted(sb, line[i], align[i], width[i]);
+        }
+        if (newLine) {
+            sb.append("\n");
+        }
     }
 
     // --- private section -----------------------------------------------------
