@@ -40,4 +40,20 @@ class ShoppingCartTest {
         assertEquals(50, ShoppingCart.calculateDiscount(ShoppingCart.ItemType.SECOND_FREE, 2));
         assertEquals(0, ShoppingCart.calculateDiscount(ShoppingCart.ItemType.SECOND_FREE, 1));
     }
+
+    @Test
+    void formatTicket() {
+        ShoppingCart shoppingCart = new ShoppingCart();
+        shoppingCart.addItem("item1", 100, 1, ShoppingCart.ItemType.REGULAR);
+        shoppingCart.addItem("item2", 200, 2, ShoppingCart.ItemType.NEW);
+        shoppingCart.addItem("item3", 300, 3, ShoppingCart.ItemType.SALE);
+        String expected = "# Item    Price Quan. Discount   Total \n" +
+                "--------------------------------------\n" +
+                "1 item1 $100.00     1        - $100.00 \n" +
+                "2 item2 $200.00     2        - $400.00 \n" +
+                "3 item3 $300.00     3      70% $270.00 \n" +
+                "--------------------------------------\n" +
+                "3                              $770.00 ";
+        assertEquals(expected, shoppingCart.formatTicket());
+    }
 }

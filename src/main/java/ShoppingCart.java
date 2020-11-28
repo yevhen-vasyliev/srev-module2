@@ -67,29 +67,40 @@ public class ShoppingCart {
      * if no items in cart returns "No items." string.
      */
     public String formatTicket() {
-        if (items.size() == 0)
+        double total = calculateItemsParameters();
+        return getFormattedTicketTable(total);
+    }
+
+    private double calculateItemsParameters() {
+        double total = 0.00;
+        for (Item item : items) {
+            int discount = calculateDiscount(item.getType(), item.getQuantity());
+            total += item.getPrice() * item.getQuantity() * (100.00 - discount) / 100.00;
+        }
+        return total;
+    }
+
+    private String getFormattedTicketTable(double total) {
+        if (items.size() == 0) {
             return "No items.";
+        }
         List<String[]> lines = new ArrayList<>();
         String[] header = {"#", "Item", "Price", "Quan.", "Discount", "Total"};
         int[] align = new int[]{1, -1, 1, 1, 1, 1};
         // formatting each line
-        double total = 0.00;
         int index = 0;
         for (Item item : items) {
             int discount = calculateDiscount(item.getType(), item.getQuantity());
-            double itemTotal = item.getPrice() * item.getQuantity() * (100.00 - discount) / 100.00;
             lines.add(new String[]{
                     String.valueOf(++index),
                     item.getTitle(),
                     MONEY.format(item.getPrice()),
                     String.valueOf(item.getQuantity()),
                     (discount == 0) ? "-" : (discount + "%"),
-                    MONEY.format(itemTotal)
+                    MONEY.format(item.getPrice() * item.getQuantity() * (100.00 - discount) / 100.00)
             });
-            total += itemTotal;
         }
         String[] footer = {String.valueOf(index), "", "", "", "", MONEY.format(total)};
-        // formatting table
         // column max length
         int[] width = new int[]{0, 0, 0, 0, 0, 0};
         for (String[] line : lines) {
@@ -105,9 +116,13 @@ public class ShoppingCart {
         StringBuilder sb = new StringBuilder();
         // header
         appendFormattedLine(sb, header, align, width, true);
+        // separator
         appendSeparator(sb, lineLength);
         // lines
-        for (String[] ignored : lines) {
+        for (String[] line : lines) {
+            appendFormattedLine(sb, line, align, width, true);
+        }
+        if (lines.size() > 0) {
             appendSeparator(sb, lineLength);
         }
         // footer
@@ -117,8 +132,9 @@ public class ShoppingCart {
 
     private void appendSeparator(StringBuilder sb, int lineLength) {
         for (int i = 0; i < lineLength; i++) {
-            sb.append("\n");
+            sb.append("-");
         }
+        sb.append("\n");
     }
 
     private void adjustColumnWidth(int[] width, String[] columns) {
