@@ -75,10 +75,14 @@ public class ShoppingCart {
         double total = 0.00;
         for (Item item : items) {
             item.setDiscount(calculateDiscount(item.getType(), item.getQuantity()));
-            item.setTotalPrice(item.getPrice() * item.getQuantity() * (100.00 - item.getDiscount()) / 100.00);
+            item.setTotalPrice(calculateTotalPrice(item.getPrice(), item.getQuantity(), item.getDiscount()));
             total += item.getTotalPrice();
         }
         return total;
+    }
+
+    public static double calculateTotalPrice(double price, int quantity, int discount) {
+        return price * quantity * (100.00 - discount) / 100.00;
     }
 
     private String getFormattedTicketTable(double total) {
