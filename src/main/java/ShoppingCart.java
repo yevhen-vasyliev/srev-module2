@@ -74,8 +74,9 @@ public class ShoppingCart {
     private double calculateItemsParameters() {
         double total = 0.00;
         for (Item item : items) {
-            int discount = calculateDiscount(item.getType(), item.getQuantity());
-            total += item.getPrice() * item.getQuantity() * (100.00 - discount) / 100.00;
+            item.setDiscount(calculateDiscount(item.getType(), item.getQuantity()));
+            item.setTotalPrice(item.getPrice() * item.getQuantity() * (100.00 - item.getDiscount()) / 100.00);
+            total += item.getTotalPrice();
         }
         return total;
     }
@@ -122,15 +123,13 @@ public class ShoppingCart {
         List<String[]> lines = new ArrayList<>();
         int index = 0;
         for (Item item : items) {
-            int discount = calculateDiscount(item.getType(), item.getQuantity());
-            double totalPrice = item.getPrice() * item.getQuantity() * (100.00 - discount) / 100.00;
             lines.add(new String[]{
                     String.valueOf(++index),
                     item.getTitle(),
                     MONEY.format(item.getPrice()),
                     String.valueOf(item.getQuantity()),
-                    (discount == 0) ? "-" : (discount + "%"),
-                    MONEY.format(totalPrice)
+                    (item.getDiscount() == 0) ? "-" : (item.getDiscount() + "%"),
+                    MONEY.format(item.getTotalPrice())
             });
         }
         return lines;
@@ -230,6 +229,8 @@ public class ShoppingCart {
         private double price;
         private int quantity;
         private ItemType type;
+        private int discount;
+        private double totalPrice;
 
         public String getTitle() {
             return title;
@@ -261,6 +262,22 @@ public class ShoppingCart {
 
         public void setType(ItemType type) {
             this.type = type;
+        }
+
+        public int getDiscount() {
+            return discount;
+        }
+
+        public void setDiscount(int discount) {
+            this.discount = discount;
+        }
+
+        public double getTotalPrice() {
+            return totalPrice;
+        }
+
+        public void setTotalPrice(double totalPrice) {
+            this.totalPrice = totalPrice;
         }
     }
 
